@@ -1,0 +1,31 @@
+// Prisma schema: the single source of truth for the database structure.
+// Change this file, then run `npm run prisma:migrate` to create a migration.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+// The connection URL lives in prisma.config.ts (Prisma 7+), not here.
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  /// UUIDv7: random enough to be unguessable, but time-ordered, so new rows
+  /// append to the end of the primary-key index instead of scattering writes
+  /// across it like UUIDv4 does.
+  id           String   @id @default(uuid(7)) @db.Uuid
+  name         String   @db.VarChar(100)
+  /// Stored lowercased and trimmed (normalized by the validator), so the
+  /// unique index also rejects case variants like Vijay@Example.com.
+  /// @unique creates the index used by every login lookup.
+  email        String   @unique @db.VarChar(255)
+  /// bcrypt hash (60 chars), never the plain-text password.
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("users")
+}

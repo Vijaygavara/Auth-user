@@ -1,0 +1,6 @@
+# Normalize line endings so Windows and Linux/Docker contributors produce identical files.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
